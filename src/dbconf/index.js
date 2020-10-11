@@ -12,7 +12,7 @@ module.exports = async function () {
   }
 
   await sequelize.connection
-    .sync({ force: true })
+    .sync({ force: false })
     .then(() => {
       console.log('Drop and re-sync db.');
     })
