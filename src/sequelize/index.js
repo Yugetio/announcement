@@ -16,13 +16,21 @@ const db = {};
 
 db.Sequelize = Sequelize;
 db.connection = sequelize;
+db.models = {}
 
 const modelDefiners = [
-  require('./models/test.model'),
+  require('./models/ad.model'),
+  require('./models/links.model'),
 ];
 
 for (const modelDefiner of modelDefiners) {
-  Object.assign(db, modelDefiner(sequelize, Sequelize));
+  Object.assign(db.models, modelDefiner(sequelize, Sequelize));
 }
+
+db.models.ad.hasMany(db.models.link, { as: "links" });
+db.models.link.belongsTo(db.models.ad, {
+  foreignKey: "adId",
+  as: "ad",
+});
 
 module.exports = db;
