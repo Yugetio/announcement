@@ -3,41 +3,42 @@ const Ad = db.models.ad;
 const Link = db.models.link;
 
 async function getAll(req, res) {
-  const {skip, limit: limitFromQuery, createdAt, price} = req.query;
-  const parsSkip = parseInt(skip, 10)
-  const parsLimit = parseInt(limitFromQuery, 10)
+  const { skip, limit: limitFromQuery, createdAt, price } = req.query;
+  const parsSkip = parseInt(skip, 10);
+  const parsLimit = parseInt(limitFromQuery, 10);
   let offset = !Number.isNaN(parsSkip) ? parsSkip : 0;
   let limit = !Number.isNaN(parsLimit) ? parsLimit : 10;
   let orderBy = [];
 
-  if(createdAt) {
-    if(createdAt == 'DESC') orderBy.push(['createdAt', 'DESC'])
-    if(createdAt == 'ASC') orderBy.push(['createdAt', 'ASC'])
+  if (createdAt) {
+    if (createdAt == 'DESC') orderBy.push(['createdAt', 'DESC']);
+    if (createdAt == 'ASC') orderBy.push(['createdAt', 'ASC']);
   }
 
-  if(price) {
-    if(price == 'DESC') orderBy.push(['price', 'DESC'])
-    if(price == 'ASC') orderBy.push(['price', 'ASC'])
+  if (price) {
+    if (price == 'DESC') orderBy.push(['price', 'DESC']);
+    if (price == 'ASC') orderBy.push(['price', 'ASC']);
   }
 
-  console.log(orderBy)
-
-  const ads = await Ad.findAll({
-    attributes: ['title', 'price'],
-    include: [
-      {
-        model: Link,
-        as: 'links',
-        attributes: ['id', 'link'],
-        limit: 1,
-      },
-    ],
-    order: orderBy,
-    offset,
-    limit,
-  });
-
-  return res.status(200).json(ads);
+  try {
+    const ads = await Ad.findAll({
+      attributes: ['title', 'price'],
+      include: [
+        {
+          model: Link,
+          as: 'links',
+          attributes: ['id', 'link'],
+          limit: 1,
+        },
+      ],
+      order: orderBy,
+      offset,
+      limit,
+    });
+    return res.status(200).json(ads);
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
 async function getOneById(req, res) {

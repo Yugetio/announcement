@@ -1,13 +1,14 @@
 version: "3"
 
 services:
-  # app:
-  #   build: .
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - "3000:3000"
-  #     - "9229:9229"
+  app:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
 
   postgres:
       image: postgres

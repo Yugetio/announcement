@@ -14,7 +14,7 @@ module.exports = async function () {
   await sequelize.connection
     .sync({ force: false })
     .then(() => {
-      console.log('Drop and re-sync db.');
+      console.log('Re-sync db OK!');
     })
     .catch(() => {
       console.log('Error with drop or re-sync db.');
