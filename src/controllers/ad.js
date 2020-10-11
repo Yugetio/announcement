@@ -11,11 +11,25 @@ async function getAll(req, res) {
 }
 
 async function getOneById(req, res) {
-  const { id } = req.params;
-  console.log(req.query)
+  const id = parseInt(req.params.id, 10);
+  const { filds } = req.query;
+  let limitForLinks = 1
 
-  const ad = await Ad.findByPk(id, { attributes: ['id', 'title'], include: ['links'] });
-  // опциональные поля (можно запросить, передав параметр fields): описание, ссылки на все фото
+  if (typeof id !== 'number' || Number.isNaN(id))
+    return res.status(422).json({ message: 'Invalid id' });
+
+  const attributes = ['id', 'title'];
+
+  if (filds && filds.length > 0) {
+    if (filds.indexOf('description') != -1) attributes.push('description');
+    if (filds.indexOf('links') != -1) limitForLinks = 3;
+  }
+
+  const ad = await Ad.findByPk(id, {
+    attributes,
+    include: [{ model: Link, as: 'links', attributes: ['id', 'link'], limit: limitForLinks } ],
+  });
+
   if (!ad) return res.status(404).json({ message: 'Ad not found' });
   return res.status(200).json(ad);
 }
