@@ -13,7 +13,7 @@ async function getAll(req, res) {
 async function getOneById(req, res) {
   const id = parseInt(req.params.id, 10);
   const { filds } = req.query;
-  let limitForLinks = 1
+  let limitForLinks = 1;
 
   if (typeof id !== 'number' || Number.isNaN(id))
     return res.status(422).json({ message: 'Invalid id' });
@@ -24,14 +24,24 @@ async function getOneById(req, res) {
     if (filds.indexOf('description') != -1) attributes.push('description');
     if (filds.indexOf('links') != -1) limitForLinks = 3;
   }
+  try {
+    const ad = await Ad.findByPk(id, {
+      attributes,
+      include: [
+        {
+          model: Link,
+          as: 'links',
+          attributes: ['id', 'link'],
+          limit: limitForLinks,
+        },
+      ],
+    });
 
-  const ad = await Ad.findByPk(id, {
-    attributes,
-    include: [{ model: Link, as: 'links', attributes: ['id', 'link'], limit: limitForLinks } ],
-  });
-
-  if (!ad) return res.status(404).json({ message: 'Ad not found' });
-  return res.status(200).json(ad);
+    if (!ad) return res.status(404).json({ message: 'Ad not found' });
+    return res.status(200).json(ad);
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
 async function create(req, res) {
